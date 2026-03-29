@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CLOSERA - CRM & Sales Pipeline</title>
+    <style>
+        :root { 
+            --dark: #1e293b; --primary: #4f46e5; --bg: #f1f5f9;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6; --purple: #8b5cf6;
+            --white: #ffffff; --slate: #64748b;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 15px; color: var(--dark); }
+
+        /* HEADER */
+        .app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; color: var(--dark); }
+        .logo span { color: var(--primary); }
+        .desc { font-size: 10px; color: var(--slate); text-align: right; text-transform: uppercase; font-weight: bold; }
+
+        /* CARDS */
+        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        h2 { margin-top: 0; font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;}
+
+        /* FORMS */
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--slate); margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
+        input:focus, select:focus { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 12px; }
+
+        /* BUTTONS */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; color: var(--dark); margin-top: 10px; }
+
+        /* STATS DASHBOARD */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: white; padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-val { font-size: 16px; font-weight: 900; color: var(--dark); display: block; margin-bottom: 3px; }
+        .stat-lbl { font-size: 10px; color: var(--slate); font-weight: 600; text-transform: uppercase; }
+        .stat-box.deal { border-bottom: 3px solid var(--success); }
+        .stat-box.potensi { border-bottom: 3px solid var(--info); }
+
+        /* TABLE */
+        .search-box input { margin-bottom: 15px; background: white; border-radius: 8px; }
+        .table-wrapper { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 12px; }
+        th { background: #f8fafc; color: var(--slate); font-weight: 700; padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        /* BADGES */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-block; }
+        .st-baru { background: #dbeafe; color: #1e40af; }
+        .st-follow { background: #fef3c7; color: #b45309; }
+        .st-nego { background: #ede9fe; color: #5b21b6; }
+        .st-deal { background: #d1fae5; color: #065f46; }
+        .st-batal { background: #fee2e2; color: #991b1b; }
+
+        .btn-icon { background: #f1f5f9; border: none; font-size: 12px; cursor: pointer; padding: 5px 8px; border-radius: 4px; margin: 0 2px; }
+        .uang { font-family: monospace; font-size: 13px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="logo">CLOSE<span>RA</span></div>
+        <div class="desc">B2B CRM System<br><span style="color:var(--primary)">Executive Dashboard</span></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-val" id="tot-klien">0</span>
+            <span class="stat-lbl">Total Klien</span>
+        </div>
+        <div class="stat-box potensi">
+            <span class="stat-val" id="tot-potensi" style="color:var(--info)">Rp 0</span>
+            <span class="stat-lbl">Potensi Pipeline</span>
+        </div>
+        <div class="stat-box deal">
+            <span class="stat-val" id="tot-deal" style="color:var(--success)">Rp 0</span>
+            <span class="stat-lbl">Total Deal (Closed)</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="form-title">💼 Input Prospek Baru</h2>
+        
+        <div class="grid-2">
+            <div>
+                <label>Nama Klien / Perusahaan</label>
+                <input type="text" id="f-nama" placeholder="Cth: PT Maju Mundur / Bpk. Andi">
+            </div>
+            <div>
+                <label>Kontak (WA / Email)</label>
+                <input type="text" id="f-kontak" placeholder="0812xxx / andi@mail.com">
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div>
+                <label>Nilai Proyek (Rp)</label>
+                <input type="number" id="f-nilai" placeholder="Cth: 15000000">
+            </div>
+            <div>
+                <label>Status</label>
+                <select id="f-status">
+                    <option value="Lead Baru">Lead Baru</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Negosiasi">Negosiasi</option>
+                    <option value="DEAL">DEAL (Closed Won)</option>
+                    <option value="Batal">Batal (Closed Lost)</option>
+                </select>
+            </div>
+            <div>
+                <label>Sumber</label>
+                <select id="f-sumber">
+                    <option value="Instagram">Instagram</option>
+                    <option value="Website">Website</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Referensi">Referensi</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn-simpan" onclick="simpanData()">SIMPAN DATA PROSPEK</button>
+        <button class="btn btn-outline" id="btn-batal" style="display:none" onclick="batalEdit()">BATAL EDIT</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="f-cari" placeholder="🔍 Cari nama klien atau kontak..." onkeyup="render()">
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th width="40">No</th>
+                    <th>Nama Klien / Perusahaan</th>
+                    <th>Kontak</th>
+                    <th>Sumber</th>
+                    <th style="text-align:right">Nilai Proyek</th>
+                    <th style="text-align:center">Status Pipeline</th>
+                    <th style="text-align:center; width: 100px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="data-tabel"></tbody>
+        </table>
+    </div>
+
+<script>
+    let db_crm = JSON.parse(localStorage.getItem('closera_db')) || [];
+    let idEdit = null;
+
+    const formatRp = (angka) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    };
+
+    function simpanData() {
+        const nama = document.getElementById('f-nama').value.trim();
+        const kontak = document.getElementById('f-kontak').value.trim();
+        const nilai = Number(document.getElementById('f-nilai').value) || 0;
+        const status = document.getElementById('f-status').value;
+        const sumber = document.getElementById('f-sumber').value;
+
+        if(!nama) return alert("Nama Klien wajib diisi!");
+
+        if (idEdit) {
+            const i = db_crm.findIndex(x => x.id === idEdit);
+            if(i !== -1) { 
+                db_crm[i] = { ...db_crm[i], nama, kontak, nilai, status, sumber, last_update: Date.now() }; 
+            }
+            batalEdit();
+        } else {
+            db_crm.push({ id: Date.now(), nama, kontak, nilai, status, sumber, tanggal: Date.now(), last_update: Date.now() });
+        }
+        
+        localStorage.setItem('closera_db', JSON.stringify(db_crm));
+        document.getElementById('f-nama').value = '';
+        document.getElementById('f-kontak').value = '';
+        document.getElementById('f-nilai').value = '';
+        render();
+    }
+
+    function editData(id) {
+        const row = db_crm.find(x => x.id === id);
+        if(!row) return;
+        document.getElementById('f-nama').value = row.nama;
+        document.getElementById('f-kontak').value = row.kontak;
+        document.getElementById('f-nilai').value = row.nilai;
+        document.getElementById('f-status').value = row.status;
+        document.getElementById('f-sumber').value = row.sumber;
+        
+        idEdit = id;
+        document.getElementById('form-title').innerText = "✏️ Edit Data Prospek";
+        document.getElementById('btn-simpan').innerText = "UPDATE DATA";
+        document.getElementById('btn-simpan').className = "btn btn-success";
+        document.getElementById('btn-batal').style.display = "block";
+        window.scrollTo(0,0);
+    }
+
+    function hapusData(id) {
+        if(confirm("Hapus data klien ini?")) {
+            db_crm = db_crm.filter(x => x.id !== id);
+            localStorage.setItem('closera_db', JSON.stringify(db_crm));
+            render();
+        }
+    }
+
+    function batalEdit() {
+        idEdit = null;
+        document.getElementById('f-nama').value = '';
+        document.getElementById('f-kontak').value = '';
+        document.getElementById('f-nilai').value = '';
+        document.getElementById('form-title').innerText = "💼 Input Prospek Baru";
+        document.getElementById('btn-simpan').innerText = "SIMPAN DATA PROSPEK";
+        document.getElementById('btn-simpan').className = "btn btn-primary";
+        document.getElementById('btn-batal').style.display = "none";
+    }
+
+    function getBadge(status) {
+        if(status === 'Lead Baru') return 'st-baru';
+        if(status === 'Follow-up') return 'st-follow';
+        if(status === 'Negosiasi') return 'st-nego';
+        if(status === 'DEAL') return 'st-deal';
+        return 'st-batal';
+    }
+
+    function render() {
+        const tbody = document.getElementById('data-tabel');
+        const kataKunci = document.getElementById('f-cari').value.toLowerCase();
+        
+        let potPipeline = 0; let potDeal = 0;
+        
+        let filtered = db_crm.filter(u => {
+            return u.nama.toLowerCase().includes(kataKunci) || u.kontak.toLowerCase().includes(kataKunci);
+        });
+
+        // Urutkan dari yang terbaru diupdate
+        filtered.sort((a,b) => b.last_update - a.last_update);
+
+        let html = "";
+        filtered.forEach((u, i) => {
+            // Hitung statistik keseluruhan (bukan cuma yang di-filter)
+            if(u.status !== 'Batal' && u.status !== 'DEAL') potPipeline += u.nilai;
+            if(u.status === 'DEAL') potDeal += u.nilai;
+
+            html += `<tr>
+                <td style="color:#94a3b8">${i+1}</td>
+                <td><b>${u.nama}</b></td>
+                <td>${u.kontak || '-'}</td>
+                <td><span style="font-size:11px; color:#64748b">${u.sumber}</span></td>
+                <td align="right" class="uang" style="color:${u.status==='DEAL'?'#059669':'#334155'}">${formatRp(u.nilai)}</td>
+                <td align="center"><span class="badge ${getBadge(u.status)}">${u.status}</span></td>
+                <td align="center">
+                    <button class="btn-icon" onclick="editData(${u.id})">✏️</button>
+                    <button class="btn-icon" style="color:red" onclick="hapusData(${u.id})">🗑️</button>
+                </td>
+            </tr>`;
+        });
+
+        // Hitung ulang total statistik tanpa terpengaruh filter pencarian
+        let truePipeline = 0; let trueDeal = 0;
+        db_crm.forEach(x => {
+            if(x.status !== 'Batal' && x.status !== 'DEAL') truePipeline += x.nilai;
+            if(x.status === 'DEAL') trueDeal += x.nilai;
+        });
+
+        document.getElementById('tot-klien').innerText = db_crm.length;
+        document.getElementById('tot-potensi').innerText = formatRp(truePipeline);
+        document.getElementById('tot-deal').innerText = formatRp(trueDeal);
+
+        tbody.innerHTML = html || '<tr><td colspan="7" align="center" style="padding:30px; color:#64748b">Belum ada data klien.</td></tr>';
+    }
+
+    render();
+</script>
+</body>
+</html>
