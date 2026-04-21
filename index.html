@@ -306,7 +306,6 @@
 
         function hapusData(id) { if(confirm("CRITICAL: Hapus prospek ini secara permanen dari Pipeline?")) { db = db.filter(x => x.id !== id); save(); render(); } }
 
-        // LOGIC PIpeline Progress
         function getPipelineData(status) {
             const stages = {
                 'Lead Baru': { pct: 10, color: '#0ea5e9' }, 'Follow-Up': { pct: 30, color: '#f59e0b' },
@@ -325,7 +324,7 @@
             link.download = "CLOSERA_Enterprise_Export.csv"; link.click();
         }
 
-        // CHART ENGINE
+        // CHART ENGINE (BUG FIXED)
         function renderCharts(data) {
             let stats = { 'Lead Baru':0, 'Follow-Up':0, 'Kirim Proposal':0, 'Negosiasi':0, 'DEAL':0, 'Batal':0 };
             let rev = { 'Lead Baru':0, 'Follow-Up':0, 'Kirim Proposal':0, 'Negosiasi':0 };
@@ -344,13 +343,46 @@
                 options: { responsive: true, plugins: { legend: { position: 'right', labels:{boxWidth:12, font:{size:11}} } }, cutout: '70%' }
             });
 
-            // Bar Revenue Pipeline
+            // Bar Revenue Pipeline (FIXED: Auto Jt/M/Rb formatting & Dynamic Colors)
             const ctx2 = document.getElementById('revenueChart').getContext('2d');
             if(cRevenue) cRevenue.destroy();
             cRevenue = new Chart(ctx2, {
                 type: 'bar',
-                data: { labels: ['Lead', 'Follow-Up', 'Proposal', 'Negosiasi'], datasets: [{ label: 'Potensi Rp', data: [rev['Lead Baru'], rev['Follow-Up'], rev['Kirim Proposal'], rev['Negosiasi']], backgroundColor: '#4f46e5', borderRadius: 4 }] },
-                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks:{callback: function(value){return 'Rp '+ (value/1000000)+'M'}} } } }
+                data: { 
+                    labels: ['Lead Baru', 'Follow-Up', 'Proposal', 'Negosiasi'], 
+                    datasets: [{ 
+                        label: 'Potensi Revenue', 
+                        data: [rev['Lead Baru'], rev['Follow-Up'], rev['Kirim Proposal'], rev['Negosiasi']], 
+                        backgroundColor: ['#0ea5e9', '#f59e0b', '#4f46e5', '#9333ea'], 
+                        borderRadius: 4 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Potensi: Rp ' + context.raw.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    }, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: {
+                                callback: function(value) {
+                                    if(value >= 1000000000) return 'Rp ' + (value/1000000000).toFixed(1) + ' Miliar';
+                                    if(value >= 1000000) return 'Rp ' + (value/1000000).toFixed(0) + ' Juta';
+                                    if(value >= 1000) return 'Rp ' + (value/1000).toFixed(0) + ' Rb';
+                                    return 'Rp ' + value;
+                                }
+                            } 
+                        } 
+                    } 
+                }
             });
         }
 
@@ -360,7 +392,6 @@
             const fStat = document.getElementById('f-status').value;
             const fPrio = document.getElementById('f-prio').value;
 
-            // STATS CALCULATION
             let totDeal = 0, totPotensi = 0, totalClosed = 0, totalWon = 0;
             db.forEach(x => {
                 if(x.status === 'DEAL') { totDeal += x.nilai; totalWon++; totalClosed++; }
@@ -373,9 +404,8 @@
             document.getElementById('s-winrate').innerText = (totalClosed > 0 ? Math.round((totalWon / totalClosed) * 100) : 0) + '%';
             document.getElementById('s-total').innerText = db.length;
 
-            renderCharts(db); // Update Charts
+            renderCharts(db);
 
-            // FILTER & RENDER TABLE
             let filtered = db.filter(u => {
                 let mKata = u.nama.toLowerCase().includes(kata) || u.kontak.toLowerCase().includes(kata) || u.catatan.toLowerCase().includes(kata);
                 return mKata && (fStat === "" || u.status === fStat) && (fPrio === "" || u.prio === fPrio);
@@ -390,14 +420,12 @@
                 let isDealLost = (u.status === 'DEAL' || u.status === 'Batal');
                 let warnaUang = u.status === 'DEAL' ? 'var(--success)' : (u.status === 'Batal' ? 'var(--text-muted)' : 'var(--dark)');
                 
-                // WA Integration
                 let kntkHtml = `<span style="color:#475569">${u.kontak || '-'}</span>`;
                 if(u.kontak && (u.kontak.startsWith('08') || u.kontak.startsWith('62'))) {
                     let wa = u.kontak.startsWith('0') ? '62' + u.kontak.substring(1) : u.kontak;
                     kntkHtml += `<br><button class="btn-wa" onclick="window.open('https://wa.me/${wa}','_blank')"><i class="fab fa-whatsapp"></i> Chat</button>`;
                 }
 
-                // Aging / SLA Alert (Peringatan Telat Follow-up)
                 let daysAgo = Math.floor((now - u.updatedAt) / (1000 * 60 * 60 * 24));
                 let agingHtml = `<span style="font-size:11px; color:var(--text-muted);">${daysAgo} hari lalu</span>`;
                 if(!isDealLost && daysAgo >= 7) agingHtml += `<br><div class="aging-alert"><i class="fas fa-exclamation-triangle"></i> SLA Warning!</div>`;
